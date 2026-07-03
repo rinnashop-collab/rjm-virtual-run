@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIRTUAL RUN — สมัคร ส่งระยะ อันดับ</title>
+<style>
+  :root{
+    --bg:#12161c; --surface:#1b2028; --surface-2:#232a34; --ink:#f2efe4;
+    --muted:#8f97a3; --line:#2c333d; --hi:#cdfb4f; --hi-ink:#12161c;
+    --warn:#ff7a4a; --gold:#ffd166; --silver:#cfd6e0; --bronze:#e0a458;
+    --radius:14px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);padding:20px 14px 70px;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:760px;margin:0 auto;}
+
+  .hero{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:16px;position:relative;overflow:hidden;}
+  .hero::before,.hero::after{content:"";position:absolute;width:14px;height:14px;border-radius:50%;background:var(--bg);border:1px solid var(--line);top:14px;}
+  .hero::before{left:-7px;} .hero::after{right:-7px;}
+  .hero-brand{font-weight:900;letter-spacing:4px;font-size:12px;color:var(--hi);text-transform:uppercase;}
+  .hero-title{font-size:24px;font-weight:900;margin-top:6px;font-family:"Arial Black",Impact,sans-serif;letter-spacing:-.5px;}
+  .hero-sub{color:var(--muted);font-size:13px;margin-top:4px;line-height:1.5;}
+  .hero-progress{margin-top:14px;}
+  .hero-progress-bar{height:8px;background:var(--surface-2);border-radius:20px;overflow:hidden;border:1px solid var(--line);}
+  .hero-progress-fill{height:100%;background:var(--hi);border-radius:20px;transition:width .3s;}
+  .hero-progress-label{font-size:11.5px;color:var(--muted);margin-top:5px;text-transform:uppercase;letter-spacing:.5px;}
+
+  .tabs{display:flex;gap:6px;margin-bottom:16px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:5px;flex-wrap:wrap;}
+  .tab-btn{flex:1;min-width:70px;padding:10px 4px;text-align:center;border-radius:8px;background:none;border:none;color:var(--muted);font-weight:800;font-size:12.5px;cursor:pointer;letter-spacing:.3px;}
+  .tab-btn.active{background:var(--hi);color:var(--hi-ink);}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:14px;}
+  .card h2{margin:0 0 4px;font-size:17px;font-weight:800;}
+  .card p.hint{margin:0 0 16px;color:var(--muted);font-size:13px;line-height:1.5;}
+
+  label{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+  input[type=text],input[type=number],input[type=date],input[type=password],select{
+    width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--ink);
+    padding:11px 12px;border-radius:10px;font-size:15px;outline:none;font-family:inherit;
+  }
+  input:focus,select:focus{border-color:var(--hi);}
+  .field{margin-bottom:14px;}
+  .gender-row{display:flex;gap:8px;}
+  .gender-btn{flex:1;padding:11px 0;text-align:center;border-radius:10px;background:var(--surface-2);border:1px solid var(--line);color:var(--muted);cursor:pointer;font-weight:700;font-size:14px;}
+  .gender-btn.active{background:var(--hi);color:var(--hi-ink);border-color:var(--hi);}
+
+  .primary-btn{width:100%;padding:14px;background:var(--hi);color:var(--hi-ink);border:none;border-radius:10px;font-weight:900;font-size:14px;letter-spacing:.5px;cursor:pointer;text-transform:uppercase;}
+  .primary-btn:disabled{opacity:.4;cursor:not-allowed;}
+  .primary-btn:hover:not(:disabled){filter:brightness(1.08);}
+  .secondary-btn{width:100%;padding:11px;background:var(--surface-2);color:var(--ink);border:1px solid var(--line);border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;margin-top:8px;}
+
+  .id-result{background:var(--surface-2);border:1px dashed var(--hi);border-radius:12px;padding:18px;text-align:center;margin-top:14px;}
+  .id-result .id-big{font-size:34px;font-weight:900;color:var(--hi);font-family:"Arial Black",Impact,sans-serif;letter-spacing:1px;}
+  .id-result .id-name{color:var(--muted);font-size:13px;margin-top:4px;}
+
+  .warn-box{background:rgba(255,122,74,.12);border:1px solid rgba(255,122,74,.4);color:#ffb599;padding:10px 12px;border-radius:10px;font-size:13px;margin-top:10px;}
+  .ok-box{background:rgba(205,251,79,.1);border:1px solid rgba(205,251,79,.4);color:var(--hi);padding:10px 12px;border-radius:10px;font-size:13px;margin-top:10px;}
+
+  .leader-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+  @media (max-width:520px){.leader-grid{grid-template-columns:1fr;}}
+  .leader-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;}
+  .leader-card .lc-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+  .leader-card .lc-name{font-size:19px;font-weight:900;margin-top:6px;}
+  .leader-card .lc-km{font-size:14px;color:var(--hi);font-weight:800;margin-top:2px;}
+  .leader-card.empty .lc-name{color:var(--muted);font-weight:600;font-size:14px;}
+
+  table{width:100%;border-collapse:collapse;}
+  th{text-align:left;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:8px 8px;border-bottom:1px solid var(--line);}
+  td{padding:10px 8px;border-bottom:1px solid var(--line);font-size:13.5px;}
+  tr:last-child td{border-bottom:none;}
+  .rank-cell{font-weight:900;width:30px;}
+  .rank-1{color:var(--gold);} .rank-2{color:var(--silver);} .rank-3{color:var(--bronze);}
+  .name-cell .nick{font-weight:700;} .name-cell .full{color:var(--muted);font-size:11.5px;}
+  .km-cell{font-weight:800;text-align:right;white-space:nowrap;}
+  .km-cell .m{color:var(--muted);font-weight:600;font-size:11.5px;}
+
+  .search-box{margin-bottom:12px;}
+  .refresh-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+  .refresh-row .icon-btn{background:var(--surface-2);border:1px solid var(--line);color:var(--muted);padding:7px 12px;border-radius:8px;font-size:12px;cursor:pointer;}
+
+  .footer-note{color:var(--muted);font-size:11.5px;text-align:center;margin-top:20px;line-height:1.6;}
+  .status-banner{background:rgba(255,122,74,.15);border:1px solid var(--warn);color:#ffb599;padding:10px 14px;border-radius:10px;font-size:12.5px;margin-bottom:14px;text-align:center;}
+  .spinner{width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--hi);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+/* ============================================================
+   ตั้งค่านี้ก่อนใช้งาน: ใส่ Web app URL ที่ได้จากการ Deploy
+   Google Apps Script (Code.gs) เป็น Web App
+   ============================================================ */
+const API_URL = "https://script.google.com/macros/s/XXXXXXXXXXXXXXXXXXXX/exec"; // TODO: แก้เป็น URL จริงของคุณ
+
+let currentTab = "register";
+let leaderboardData = null;
+let lastRegistered = null;
+let adminSession = null; // { password } — เก็บไว้ชั่วคราวใน memory ระหว่างใช้งานหน้านี้เท่านั้น
+
+function fmtKm(km){
+  km = Number(km)||0;
+  const wholeKm = Math.floor(km);
+  const meters = Math.round((km - wholeKm)*1000);
+  if(wholeKm===0) return `${meters} ม.`;
+  if(meters===0) return `${wholeKm} กม.`;
+  return `${wholeKm} กม. ${meters} ม.`;
+}
+function fmtDateTh(iso){
+  if(!iso) return "-";
+  const [y,m,d] = iso.split("-").map(Number);
+  const months = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+  return `${d} ${months[m-1]} ${y}`;
+}
+
+async function apiGet(action, params={}){
+  const qs = new URLSearchParams({action, ...params}).toString();
+  const res = await fetch(`${API_URL}?${qs}`);
+  return res.json();
+}
+async function apiPost(payload){
+  // ใช้ Content-Type: text/plain เพื่อเลี่ยงปัญหา CORS preflight กับ Apps Script
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify(payload)
+  });
+  return res.json();
+}
+
+function checkConfig(){
+  return !API_URL.includes("XXXXXXXX");
+}
+
+// ---------------- Shell ----------------
+async function render(){
+  const app = document.getElementById("app");
+  const configured = checkConfig();
+  let settings = {};
+  if(configured){
+    try{ settings = await apiGet("settings"); }catch(e){ settings = {}; }
+  }
+  const count = leaderboardData ? leaderboardData.registeredCount : "-";
+
+  app.innerHTML = `
+    ${!configured ? `<div class="status-banner">ยังไม่ได้ตั้งค่า API_URL ในไฟล์นี้ — เปิดโค้ด แก้ตัวแปร API_URL ให้เป็นลิงก์ Web App ของคุณก่อนใช้งานจริง</div>` : ""}
+    <div class="hero">
+      <div class="hero-brand">VIRTUAL RUN EVENT</div>
+      <div class="hero-title">${settings.EventName || "วิ่งที่ไหนก็ได้ นับระยะรวมกัน"}</div>
+      <div class="hero-sub">
+        สมัคร รับ ID → ส่งระยะที่วิ่งได้ → ดูอันดับรวม<br>
+        ${settings.EventStart && settings.EventEnd ? `ช่วงแข่ง: ${fmtDateTh(settings.EventStart)} – ${fmtDateTh(settings.EventEnd)}` : "ยังไม่ได้ตั้งช่วงวันแข่ง (แอดมินตั้งได้ที่แท็บแอดมิน)"}
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn ${currentTab==='register'?'active':''}" data-tab="register">สมัคร</button>
+      <button class="tab-btn ${currentTab==='submit'?'active':''}" data-tab="submit">ส่งระยะ</button>
+      <button class="tab-btn ${currentTab==='board'?'active':''}" data-tab="board">อันดับ</button>
+      <button class="tab-btn ${currentTab==='admin'?'active':''}" data-tab="admin">แอดมิน</button>
+    </div>
+
+    <div id="tabContent"><div style="text-align:center;color:var(--muted);padding:30px;"><span class="spinner"></span>กำลังโหลด...</div></div>
+    <div class="footer-note">ข้อมูลทั้งหมดเก็บใน Google Sheet ของผู้จัดงาน — ระบบนี้ไม่ใช้บัญชี Claude หรือระบบเก็บข้อมูลของ Claude</div>
+  `;
+  document.querySelectorAll(".tab-btn").forEach(b=>{
+    b.addEventListener("click",()=>{ currentTab=b.dataset.tab; renderTab(); });
+  });
+  await renderTab();
+}
+
+async function renderTab(){
+  const content = document.getElementById("tabContent");
+  if(!checkConfig()){
+    content.innerHTML = `<div class="card"><p class="hint">แก้ API_URL ในโค้ดก่อน ถึงจะเรียกข้อมูลได้</p></div>`;
+    return;
+  }
+  if(currentTab==="register"){ content.innerHTML = renderRegister(); bindRegister(); }
+  if(currentTab==="submit"){ content.innerHTML = renderSubmit(); bindSubmit(); }
+  if(currentTab==="board"){ content.innerHTML = `<div style="text-align:center;color:var(--muted);padding:30px;"><span class="spinner"></span>กำลังโหลดอันดับ...</div>`; await loadBoard(); }
+  if(currentTab==="admin"){ content.innerHTML = renderAdmin(); bindAdmin(); }
+}
+
+// ---------------- Register ----------------
+function renderRegister(){
+  return `
+    <div class="card">
+      <h2>สมัครเข้าร่วม</h2>
+      <p class="hint">กรอกชื่อ-ชื่อเล่นเพื่อรับหมายเลข ID สำหรับใช้ส่งระยะทางตลอดงาน (จำ ID ไว้ให้ดี)</p>
+      <div class="field"><label>ชื่อจริง</label><input type="text" id="regName" placeholder="เช่น สมชาย ใจดี"></div>
+      <div class="field"><label>ชื่อเล่น</label><input type="text" id="regNick" placeholder="เช่น ชาย"></div>
+      <div class="field">
+        <label>เพศ</label>
+        <div class="gender-row">
+          <div class="gender-btn active" data-g="male">ชาย</div>
+          <div class="gender-btn" data-g="female">หญิง</div>
+          <div class="gender-btn" data-g="other">ไม่ระบุ</div>
+        </div>
+      </div>
+      <div id="regMsg">${lastRegistered ? `
+        <div class="id-result">
+          <div class="id-big">${lastRegistered.id}</div>
+          <div class="id-name">${lastRegistered.nickname} (${lastRegistered.name}) — จำหมายเลขนี้ไว้ใช้ส่งระยะทางนะครับ</div>
+        </div>` : ""}</div>
+      <button class="primary-btn" id="regBtn">สมัครและรับ ID</button>
+    </div>
+
+    <div class="card">
+      <h2>ลืม ID ของตัวเอง?</h2>
+      <p class="hint">ค้นหาด้วยชื่อหรือชื่อเล่น</p>
+      <input type="text" id="findBox" class="search-box" placeholder="พิมพ์ชื่อหรือชื่อเล่น...">
+      <div id="findResults"></div>
+    </div>
+  `;
+}
+function bindRegister(){
+  let gender = "male";
+  document.querySelectorAll(".gender-btn").forEach(el=>{
+    el.addEventListener("click",()=>{
+      document.querySelectorAll(".gender-btn").forEach(x=>x.classList.remove("active"));
+      el.classList.add("active"); gender = el.dataset.g;
+    });
+  });
+  document.getElementById("regBtn").addEventListener("click", async ()=>{
+    const name = document.getElementById("regName").value.trim();
+    const nick = document.getElementById("regNick").value.trim();
+    const msg = document.getElementById("regMsg");
+    if(!name || !nick){ msg.innerHTML = `<div class="warn-box">กรุณากรอกชื่อและชื่อเล่นให้ครบ</div>`; return; }
+    const btn = document.getElementById("regBtn");
+    btn.disabled = true; btn.textContent = "กำลังสมัคร...";
+    try{
+      const result = await apiPost({action:"register", name, nickname:nick, gender});
+      if(result.error){ msg.innerHTML = `<div class="warn-box">${result.error}</div>`; }
+      else{
+        lastRegistered = result;
+        document.getElementById("regName").value="";
+        document.getElementById("regNick").value="";
+        msg.innerHTML = `
+          <div class="id-result">
+            <div class="id-big">${result.id}</div>
+            <div class="id-name">${result.nickname} (${result.name}) — จำหมายเลขนี้ไว้ใช้ส่งระยะทางนะครับ</div>
+          </div>`;
+      }
+    }catch(e){ msg.innerHTML = `<div class="warn-box">เชื่อมต่อไม่สำเร็จ ลองใหม่อีกครั้ง</div>`; }
+    btn.disabled=false; btn.textContent="สมัครและรับ ID";
+  });
+
+  let searchTimer;
+  document.getElementById("findBox").addEventListener("input",(e)=>{
+    clearTimeout(searchTimer);
+    const q = e.target.value.trim();
+    const box = document.getElementById("findResults");
+    if(!q){ box.innerHTML=""; return; }
+    searchTimer = setTimeout(async ()=>{
+      const matches = await apiGet("findId", {q});
+      if(!matches.length){ box.innerHTML = `<div class="warn-box">ไม่พบชื่อนี้ ลองสะกดใหม่ดูครับ</div>`; return; }
+      box.innerHTML = matches.map(r=>`
+        <div class="id-result" style="margin-top:8px;">
+          <div class="id-big" style="font-size:22px;">${r.id}</div>
+          <div class="id-name">${r.nickname} (${r.name})</div>
+        </div>`).join("");
+    }, 350);
+  });
+}
+
+// ---------------- Submit distance ----------------
+function renderSubmit(){
+  return `
+    <div class="card">
+      <h2>ส่งระยะที่วิ่งได้</h2>
+      <p class="hint">กรอก ID ของคุณ แล้วใส่ระยะทางที่วิ่งได้ (กิโลเมตร) ส่งได้หลายครั้ง ระบบจะรวมยอดให้อัตโนมัติ</p>
+      <div class="field"><label>ID ของคุณ</label><input type="text" id="subId" placeholder="เช่น R007" style="text-transform:uppercase;"></div>
+      <div id="subWhoami"></div>
+      <div class="field"><label>ระยะทาง (กิโลเมตร)</label><input type="number" id="subKm" step="0.01" min="0" placeholder="เช่น 5.2"></div>
+      <div class="field"><label>วันที่วิ่ง</label><input type="date" id="subDate" value="${new Date().toISOString().slice(0,10)}"></div>
+      <div class="field"><label>โน้ต (ไม่บังคับ)</label><input type="text" id="subNote" placeholder="เช่น วิ่งเช้าสวนลุม"></div>
+      <div id="subMsg"></div>
+      <button class="primary-btn" id="subBtn">บันทึกระยะนี้</button>
+    </div>
+  `;
+}
+function bindSubmit(){
+  const idInput = document.getElementById("subId");
+  let whoTimer;
+  idInput.addEventListener("input", ()=>{
+    clearTimeout(whoTimer);
+    const id = idInput.value.trim().toUpperCase();
+    idInput.value = id;
+    const who = document.getElementById("subWhoami");
+    if(!id){ who.innerHTML=""; return; }
+    whoTimer = setTimeout(async ()=>{
+      const r = await apiGet("whoami", {id});
+      if(r.error){ who.innerHTML = `<div class="warn-box">ไม่พบ ID นี้ในระบบ ตรวจสอบอีกครั้งหรือไปที่แท็บ "สมัคร" เพื่อค้นหา</div>`; return; }
+      who.innerHTML = `<div class="ok-box">${r.nickname} (${r.name}) — สะสมแล้ว ${fmtKm(r.total)}</div>`;
+    }, 400);
+  });
+
+  document.getElementById("subBtn").addEventListener("click", async ()=>{
+    const id = document.getElementById("subId").value.trim().toUpperCase();
+    const km = document.getElementById("subKm").value;
+    const date = document.getElementById("subDate").value;
+    const note = document.getElementById("subNote").value.trim();
+    const msg = document.getElementById("subMsg");
+    if(!id){ msg.innerHTML = `<div class="warn-box">กรุณากรอก ID</div>`; return; }
+    if(!km || Number(km)<=0){ msg.innerHTML = `<div class="warn-box">กรุณากรอกระยะทางที่ถูกต้อง</div>`; return; }
+    const btn = document.getElementById("subBtn");
+    btn.disabled = true; btn.textContent = "กำลังบันทึก...";
+    try{
+      const result = await apiPost({action:"submit", id, km, date, note});
+      if(result.error){ msg.innerHTML = `<div class="warn-box">${result.error}</div>`; }
+      else{
+        msg.innerHTML = `<div class="ok-box">บันทึกแล้ว! ${result.nickname} สะสมรวม ${fmtKm(result.total)}</div>`;
+        document.getElementById("subKm").value="";
+        document.getElementById("subNote").value="";
+      }
+    }catch(e){ msg.innerHTML = `<div class="warn-box">เชื่อมต่อไม่สำเร็จ ลองใหม่อีกครั้ง</div>`; }
+    btn.disabled=false; btn.textContent="บันทึกระยะนี้";
+  });
+}
+
+// ---------------- Leaderboard ----------------
+async function loadBoard(){
+  try{
+    leaderboardData = await apiGet("leaderboard");
+  }catch(e){
+    document.getElementById("tabContent").innerHTML = `<div class="card"><div class="warn-box">โหลดอันดับไม่สำเร็จ ลองรีเฟรชอีกครั้ง</div></div>`;
+    return;
+  }
+  document.getElementById("tabContent").innerHTML = renderBoard();
+  bindBoard();
+}
+function renderBoard(){
+  const d = leaderboardData || {rows:[], registeredCount:0};
+  const rows = d.rows || [];
+  const top = rows[0];
+  const topMale = rows.filter(r=>r.gender==="male" && r.total>0)[0];
+  const topFemale = rows.filter(r=>r.gender==="female" && r.total>0)[0];
+
+  return `
+    <div class="refresh-row">
+      <span style="color:var(--muted);font-size:12.5px;">สมัครแล้ว ${d.registeredCount} คน ${d.eventStart? '· นับเฉพาะระยะช่วง '+fmtDateTh(d.eventStart)+' – '+fmtDateTh(d.eventEnd) : ''}</span>
+      <button class="icon-btn" id="refreshBtn">🔄 รีเฟรช</button>
+    </div>
+
+    <div class="leader-grid">
+      <div class="leader-card ${!topMale?'empty':''}">
+        <div class="lc-label">🥇 ผู้นำ ชาย</div>
+        <div class="lc-name">${topMale? topMale.nickname+' ('+topMale.id+')' : 'ยังไม่มีข้อมูล'}</div>
+        ${topMale? `<div class="lc-km">${fmtKm(topMale.total)}</div>`:''}
+      </div>
+      <div class="leader-card ${!topFemale?'empty':''}">
+        <div class="lc-label">🥇 ผู้นำ หญิง</div>
+        <div class="lc-name">${topFemale? topFemale.nickname+' ('+topFemale.id+')' : 'ยังไม่มีข้อมูล'}</div>
+        ${topFemale? `<div class="lc-km">${fmtKm(topFemale.total)}</div>`:''}
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>อันดับรวมทุกคน</h2>
+      <p class="hint">${top && top.total>0 ? 'ผู้นำภาพรวม: '+top.nickname+' — '+fmtKm(top.total) : 'ยังไม่มีใครส่งระยะเลยตอนนี้'}</p>
+      ${rows.length===0 ? `<div class="warn-box">ยังไม่มีผู้สมัคร</div>` : `
+      <table>
+        <thead><tr><th>#</th><th>นักวิ่ง</th><th>เพศ</th><th style="text-align:right">รวมระยะ</th></tr></thead>
+        <tbody>
+          ${rows.map((r,i)=>`
+            <tr>
+              <td class="rank-cell ${i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':''}">${i+1}</td>
+              <td class="name-cell"><div class="nick">${r.nickname}</div><div class="full">${r.id} · ${r.name}</div></td>
+              <td>${r.gender==='male'?'ชาย':r.gender==='female'?'หญิง':'-'}</td>
+              <td class="km-cell">${r.total.toFixed(2)} กม.<div class="m">${fmtKm(r.total)}</div></td>
+            </tr>`).join("")}
+        </tbody>
+      </table>`}
+    </div>
+  `;
+}
+function bindBoard(){
+  document.getElementById("refreshBtn").addEventListener("click", async ()=>{
+    document.getElementById("refreshBtn").textContent = "กำลังโหลด...";
+    await loadBoard();
+  });
+}
+
+// ---------------- Admin ----------------
+function renderAdmin(){
+  if(!adminSession){
+    return `
+      <div class="card">
+        <h2>เข้าสู่ระบบแอดมิน</h2>
+        <p class="hint">ตั้งรหัสผ่านไว้ที่ Script Properties (ADMIN_PASSWORD) ใน Google Apps Script</p>
+        <div class="field"><label>รหัสผ่านแอดมิน</label><input type="password" id="adminPw"></div>
+        <div id="adminLoginMsg"></div>
+        <button class="primary-btn" id="adminLoginBtn">เข้าสู่ระบบ</button>
+      </div>
+    `;
+  }
+  return `
+    <div class="card">
+      <h2>ตั้งค่างานแข่ง</h2>
+      <p class="hint">อันดับในแท็บ "อันดับ" จะนับเฉพาะระยะที่ส่งในช่วงวันนี้เท่านั้น</p>
+      <div class="field"><label>ชื่องาน</label><input type="text" id="evName" placeholder="เช่น Pumpkinslane Virtual Run 2026"></div>
+      <div class="field"><label>วันเริ่ม</label><input type="date" id="evStart"></div>
+      <div class="field"><label>วันสิ้นสุด</label><input type="date" id="evEnd"></div>
+      <div id="evMsg"></div>
+      <button class="primary-btn" id="evSaveBtn">บันทึกการตั้งค่า</button>
+    </div>
+    <div class="card">
+      <h2>ข้อมูลดิบทั้งหมด</h2>
+      <p class="hint">ดู/แก้ไข/ลบรายการได้ละเอียดที่สุดโดยเปิด Google Sheet ของคุณโดยตรง (แท็บ Runners และ Logs) — ปุ่มนี้ช่วยดาวน์โหลดสรุปเป็นไฟล์ CSV เก็บไว้ดูย้อนหลัง</p>
+      <button class="secondary-btn" id="exportBtn">ดาวน์โหลดสรุปเป็น CSV</button>
+      <div id="exportMsg"></div>
+    </div>
+    <div class="card">
+      <button class="secondary-btn" id="logoutBtn">ออกจากระบบแอดมิน</button>
+    </div>
+  `;
+}
+function bindAdmin(){
+  if(!adminSession){
+    document.getElementById("adminLoginBtn").addEventListener("click", async ()=>{
+      const pw = document.getElementById("adminPw").value;
+      const msg = document.getElementById("adminLoginMsg");
+      msg.innerHTML = `<span class="spinner"></span>กำลังตรวจสอบ...`;
+      const check = await apiPost({action:"adminSummary", password: pw});
+      if(check.error){ msg.innerHTML = `<div class="warn-box">${check.error}</div>`; return; }
+      adminSession = { password: pw };
+      renderAdminView();
+    });
+    return;
+  }
+  // Pre-fill event fields from current settings
+  apiGet("settings").then(s=>{
+    if(document.getElementById("evName")) document.getElementById("evName").value = s.EventName||"";
+    if(document.getElementById("evStart")) document.getElementById("evStart").value = s.EventStart||"";
+    if(document.getElementById("evEnd")) document.getElementById("evEnd").value = s.EventEnd||"";
+  });
+
+  document.getElementById("evSaveBtn").addEventListener("click", async ()=>{
+    const name = document.getElementById("evName").value.trim();
+    const start = document.getElementById("evStart").value;
+    const end = document.getElementById("evEnd").value;
+    const msg = document.getElementById("evMsg");
+    const result = await apiPost({action:"adminSetEvent", password: adminSession.password, name, start, end});
+    if(result.error){ msg.innerHTML = `<div class="warn-box">${result.error}</div>`; }
+    else{ msg.innerHTML = `<div class="ok-box">บันทึกแล้ว</div>`; leaderboardData = null; }
+  });
+
+  document.getElementById("exportBtn").addEventListener("click", async ()=>{
+    const msg = document.getElementById("exportMsg");
+    msg.innerHTML = `<span class="spinner"></span>กำลังเตรียมไฟล์...`;
+    const data = await apiPost({action:"adminSummary", password: adminSession.password});
+    if(data.error){ msg.innerHTML = `<div class="warn-box">${data.error}</div>`; return; }
+    let csv = "== Runners ==\n" + data.runners.map(r=>r.join(",")).join("\n");
+    csv += "\n\n== Logs ==\n" + data.logs.map(r=>r.join(",")).join("\n");
+    const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "virtual-run-summary.csv"; a.click();
+    msg.innerHTML = `<div class="ok-box">ดาวน์โหลดแล้ว</div>`;
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", ()=>{
+    adminSession = null; renderAdminView();
+  });
+}
+function renderAdminView(){
+  const content = document.getElementById("tabContent");
+  content.innerHTML = renderAdmin();
+  bindAdmin();
+}
+
+(async function init(){
+  await render();
+})();
+</script>
+</body>
+</html>
